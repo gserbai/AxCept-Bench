@@ -1,4 +1,4 @@
-AxAccept-Bench
+AxCept-Bench
 Copyright (c) 2025-2026 Guilherme Saides Serbai. All rights reserved.
 
 Licensed under the Apache License.
@@ -9,7 +9,7 @@ THIRD-PARTY SOFTWARE NOTICES
 ============================
 
 This project includes third-party software and tools used as part of the
-AxAccept-Bench experimental infrastructure.
+AxCept-Bench experimental infrastructure.
 
 1. TooJpeg
    Copyright (c) 2015-2023 Stephan Brumme
@@ -18,7 +18,7 @@ AxAccept-Bench experimental infrastructure.
 
    Description:
    A small C++ JPEG writer used for image compression benchmarking in the
-   AxAccept-Bench JPEG workload.
+   AxCept-Bench JPEG workload.
 
 ---
 
@@ -28,7 +28,7 @@ AxAccept-Bench experimental infrastructure.
    License: Revised BSD License
 
    Description:
-   A lightweight Fast Fourier Transform library used in the AxAccept-Bench
+   A lightweight Fast Fourier Transform library used in the AxCept-Bench
    FFT workload.
 
 ---
@@ -40,13 +40,6 @@ AxAccept-Bench experimental infrastructure.
    Description:
    A cycle-accurate DRAM simulator used to generate DRAM command traces from
    filtered AxRAM memory traces.
-
-   AxAccept-Bench uses Ramulator with the following DDR3 configuration:
-
-   standard = DDR3
-   speed    = DDR3_1600K
-   org      = DDR3_2Gb_x16
-
 ---
 
 4. DRAMPower 4.1
@@ -57,12 +50,8 @@ AxAccept-Bench experimental infrastructure.
    A DRAM power and energy estimation tool used to estimate energy from
    Ramulator command traces.
 
-   AxAccept-Bench uses the following DRAMPower memory specification:
-
-   DRAMPower-4.1/memspecs/MICRON_2Gb_DDR3-1600_16bit_D.xml
-
 ---
 
 The third-party components listed above are not authored by the
-AxAccept-Bench author. Their original licenses, notices, and documentation
+AxCept-Bench author. Their original licenses, notices, and documentation
 should be preserved in their respective directories.

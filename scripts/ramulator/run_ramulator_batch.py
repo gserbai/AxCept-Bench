@@ -166,7 +166,7 @@ def run_one(trace_file: Path, input_root: Path, out_root: Path,
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Executa traces filtrados do AxAccept-Bench no Ramulator mantendo estrutura por cenário."
+        description="Executa traces filtrados do AxCept-Bench no Ramulator mantendo estrutura por cenário."
     )
 
     parser.add_argument(
@@ -183,13 +183,13 @@ def main():
 
     parser.add_argument(
         "--ramulator",
-        default=str(Path.home() / "AxAccept-Bench" / "ramulator" / "ramulator"),
+        default=str(Path.home() / "AxCept-Bench" / "ramulator" / "ramulator"),
         help="Caminho para o binário ramulator"
     )
 
     parser.add_argument(
         "--config",
-        default=str(Path.home() / "AxAccept-Bench" / "ramulator" / "configs" / "DDR3-config.cfg"),
+        default=str(Path.home() / "AxCept-Bench" / "ramulator" / "configs" / "DDR3-config.cfg"),
         help="Config base do Ramulator"
     )
 

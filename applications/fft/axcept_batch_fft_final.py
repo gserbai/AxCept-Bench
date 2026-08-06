@@ -1,5 +1,5 @@
 ######################################################################
-# AxAccept-Bench (Audio FFT / Dominant Frequency)
+# AxCept-Bench (Audio FFT / Dominant Frequency)
 # Author: Guilherme Saides Serbai
 # Year: 2026
 #

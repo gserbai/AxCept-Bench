@@ -14,7 +14,7 @@ $ axpike --adele=mem_read_prob:1e-4,linesz:32 \
        --dc=128:8:32 \
        --ic=256:4:32 \
        --l2=1024:4:32 \
-       pk /home/user/AxAccept-Bench/applications/jpeg/src/toojpeg_encoder 100 < input.csv > output.jpeg
+       pk /home/user/AxCept-Bench/applications/jpeg/src/toojpeg_encoder 100 < input.csv > output.jpeg
 ```
 
 ---
@@ -38,15 +38,10 @@ $ axpike --adele=mem_read_prob:1e-4,linesz:32 \
 
 **Python:**
 ```bash
-$ python axaccept_batch_jpeg.py
+python3 scripts/benchmarks/jpeg/axcept_batch_jpeg.py
 ```
 
-**Shell:**
-```bash
-$ bash axaccept_batch_jpeg.sh
-```
-
-Both scan `src/dataset_csv/` recursively and write output to
+The runner scans `src/dataset_csv/` recursively and writes output to
 `src/dataset_error_rate_<rate>/`, preserving the original directory structure.
 
 ---

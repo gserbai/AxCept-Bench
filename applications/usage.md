@@ -47,22 +47,11 @@ to you use the parameter de errors you need set for on the variavel initial in /
 
 
 ```bash
-$ axpike --adele=mem_read_prob:1e-2,linesz:32 --adele-activate=0:AXRAM --dc=128:8:32 --ic=256:4:32 --l2=1024:4:32 pk /home/guilherme/AxAccept-Bench/applications/jpeg/RunJpeg/src/toojpeg_encoder 100 < path.csv > output.jpeg
+$ axpike --adele=mem_read_prob:1e-2,linesz:32 --adele-activate=0:AXRAM --dc=128:8:32 --ic=256:4:32 --l2=1024:4:32 pk /home/guilherme/AxCept-Bench/applications/jpeg/src/toojpeg_encoder 100 < path.csv > output.jpeg
 OR
-$ axpike  --adele=mem_read_prob:1e-3,linesz:32  --adele-activate=0:AXRAM  --dc=128:8:32  --ic=256:4:32  --l2=1024:4:32  pk /home/guilherme/AxAccept-Bench/applications/fft/Runfft/src/dominant_freq < input.csv > saida.bin
+$ axpike  --adele=mem_read_prob:1e-3,linesz:32  --adele-activate=0:AXRAM  --dc=128:8:32  --ic=256:4:32  --l2=1024:4:32  pk /home/guilherme/AxCept-Bench/applications/fft/src/dominant_freq < input.csv > saida.bin
 
 ```
-
-### Batch Processing
-
-If you want to process a large number of images (e.g., the imagenette dataset)
-in batch mode, follow the instructions available in:
-
-See [RunJpeg/usagerunjpeg.md](RunJpeg/usagerunjpeg.md)
-
-The commands described in that document will automatically execute
-the JPEG encoder over the dataset and generate a new dataset using
-the specified approximation parameters.
 
 ### Parameter Breakdown:
 

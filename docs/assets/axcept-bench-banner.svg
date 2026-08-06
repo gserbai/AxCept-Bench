@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="210" viewBox="0 0 1000 210" role="img" aria-labelledby="title desc">
+  <title id="title">AxCept-Bench</title>
+  <desc id="desc">Banner colorido do benchmark de computação aproximada AxCept-Bench</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071426"/>
+      <stop offset="0.55" stop-color="#12213d"/>
+      <stop offset="1" stop-color="#201448"/>
+    </linearGradient>
+    <linearGradient id="titleGradient" x1="170" y1="0" x2="850" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#29d3ff"/>
+      <stop offset="0.48" stop-color="#7c5cff"/>
+      <stop offset="1" stop-color="#ff4fa3"/>
+    </linearGradient>
+    <linearGradient id="pulseGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#29d3ff"/>
+      <stop offset="1" stop-color="#ff4fa3"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="992" height="202" rx="28" fill="url(#background)" stroke="#334a73" stroke-width="2"/>
+
+  <g opacity="0.3" fill="none" stroke="#55709d" stroke-width="1">
+    <path d="M42 45H126L150 69H202"/>
+    <path d="M43 165H109L139 135H202"/>
+    <path d="M798 48H874L901 75H957"/>
+    <path d="M798 162H862L895 129H958"/>
+  </g>
+  <g fill="#29d3ff">
+    <circle cx="42" cy="45" r="4"/><circle cx="202" cy="69" r="4"/>
+  </g>
+  <g fill="#ff4fa3">
+    <circle cx="43" cy="165" r="4"/><circle cx="202" cy="135" r="4"/>
+    <circle cx="798" cy="48" r="4"/><circle cx="957" cy="75" r="4"/>
+  </g>
+  <g fill="#8b70ff">
+    <circle cx="798" cy="162" r="4"/><circle cx="958" cy="129" r="4"/>
+  </g>
+
+  <path d="M59 108H100L113 82L130 137L148 96L162 108H205" fill="none" stroke="url(#pulseGradient)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+
+  <text x="500" y="112" text-anchor="middle" fill="url(#titleGradient)" font-family="DejaVu Sans, Arial, sans-serif" font-size="70" font-weight="800" letter-spacing="-2">AxCept-Bench</text>
+  <text x="500" y="157" text-anchor="middle" fill="#b9c9e5" font-family="DejaVu Sans, Arial, sans-serif" font-size="19" font-weight="500" letter-spacing="3">APPROXIMATE COMPUTING BENCHMARK</text>
+</svg>

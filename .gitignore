@@ -1,56 +1,38 @@
-# Generated datasets and experiment outputs
-dataset_error_rate_*/
-dataset_non_approx_acc/
-logs/
-logs_*/
-non_approx/
-uy_filtrado/
-ramulator_results/
-drampower_results/
-
-# AxRAM / AxPIKE runtime logs
-AXRAM_log_pid*_hart*.log
-log_mem.mem
-*.log
-
-# Generated media/data outputs
-*.jpeg
-*.jpg
-*.png
-*.tif
-*.tiff
-
-# Ramulator generated outputs
-DDR3.stats
-trace.cpu
-DDR3-config-used.cfg
-cmd-trace-*.cmdtrace
-stdout.txt
-stderr.txt
-ramulator_batch_summary.csv
-run.log
-
-# DRAMPower generated outputs
-drampower.out
-drampower.err
-drampower_summary.csv
-
-# Build artifacts
-build/
-obj/
-*.o
-*.a
-*.so
-*.d
-*.pc
-
 # Python
 __pycache__/
 *.pyc
 .venv/
 venv/
+env/
+
+# Build
+build/
+obj/
+*.o
+*.a
+*.so
+*.out
+
+# Local experiment outputs
+logs/
+logs_*/
+outputs/
+results/
+dataset_*/
+*_results/
+non_approx/
+
+# Runtime/generated files
+*.log
+*.mem
+DDR3.stats
+trace.cpu
+stdout.txt
+stderr.txt
+run.log
 
 # Editor / OS
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db

@@ -84,7 +84,7 @@ The filtering script keeps only `U Y` accesses and removes the prefix:
 Run from the project root:
 
 ```bash
-cd ~/AxAccept-Bench
+cd ~/AxCept-Bench
 ```
 
 For approximate datasets:
@@ -120,7 +120,7 @@ So `U Y` still means “user-space access exposed to approximation,” not
 The batch script uses this config by default:
 
 ```text
-~/AxAccept-Bench/ramulator/configs/DDR3-config.cfg
+~/AxCept-Bench/ramulator/configs/DDR3-config.cfg
 ```
 
 Current DDR3 backend:
@@ -161,14 +161,14 @@ The script already has these defaults:
 ```text
 --input-root  ~/Documents/uy_filtrado
 --out-root    ~/Documents/ramulator_results
---ramulator   ~/AxAccept-Bench/ramulator/ramulator
---config      ~/AxAccept-Bench/ramulator/configs/DDR3-config.cfg
+--ramulator   ~/AxCept-Bench/ramulator/ramulator
+--config      ~/AxCept-Bench/ramulator/configs/DDR3-config.cfg
 ```
 
 Normal run:
 
 ```bash
-cd ~/AxAccept-Bench
+cd ~/AxCept-Bench
 python3 scripts/run_ramulator_batch.py --jobs 5
 ```
 
@@ -178,7 +178,7 @@ Equivalent explicit run:
 python3 scripts/run_ramulator_batch.py \
   --input-root ~/Documents/uy_filtrado \
   --out-root ~/Documents/ramulator_results \
-  --config ~/AxAccept-Bench/ramulator/configs/DDR3-config.cfg \
+  --config ~/AxCept-Bench/ramulator/configs/DDR3-config.cfg \
   --jobs 5
 ```
 
@@ -226,7 +226,7 @@ python3 scripts/run_ramulator_batch.py --jobs 5
 ## 6. Running in the background
 
 ```bash
-cd ~/AxAccept-Bench
+cd ~/AxCept-Bench
 mkdir -p ~/Documents/ramulator_results
 
 nohup python3 scripts/run_ramulator_batch.py --jobs 5 \
@@ -354,7 +354,7 @@ cmd-trace-*.cmdtrace
 Example DRAMPower command:
 
 ```bash
-cd ~/AxAccept-Bench/DRAMPower-4.1
+cd ~/AxCept-Bench/DRAMPower-4.1
 
 ./drampower \
   -m memspecs/MICRON_2Gb_DDR3-1600_16bit_D.xml \
@@ -383,7 +383,7 @@ Wrong DRAM configuration:
 
 ```bash
 grep -E "standard|speed|org" \
-  ~/AxAccept-Bench/ramulator/configs/DDR3-config.cfg
+  ~/AxCept-Bench/ramulator/configs/DDR3-config.cfg
 ```
 
 Missing command trace:
@@ -399,7 +399,7 @@ cat DDR3-config-used.cfg
 ## Minimal command sequence
 
 ```bash
-cd ~/AxAccept-Bench
+cd ~/AxCept-Bench
 
 find ~/Documents/uy_filtrado -name "AXRAM_log_pid*_hart*.log" | wc -l
 

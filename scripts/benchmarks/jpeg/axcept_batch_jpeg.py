@@ -1,20 +1,10 @@
+#!/usr/bin/env python3
 ######################################################################
-# AxAccept-Bench (JPEG Encoder)
+# AxCept-Bench (JPEG Encoder)
 # Author: Guilherme Saides Serbai
 # Year: 2026
-#
-# Batch runner for AxPike/AxRAM JPEG experiments.
-# Input  : CSV image files via stdin
-# Output : JPEG files via stdout
-# Log    : AxPike/AxRAM stderr logs
-#
-# This version classifies each output in summary.csv:
-#   VALID_JPEG, AXPIKE_CRASH_DUMP, JPEG_WITH_CRASH_DUMP,
-#   TIMEOUT_OR_EMPTY, PARTIAL_JPEG_TIMEOUT, PARTIAL_JPEG,
-#   INVALID_OUTPUT, SCRIPT_ERROR
 ######################################################################
 
-import csv
 import shutil
 import subprocess
 import time
@@ -47,7 +37,6 @@ APP_BIN = "./src/toojpeg_encoder"
 
 OUTPUT_JPEG_DIR = Path(f"./src/dataset_error_rate_{ERROR_RATE}")
 LOG_DIR = Path(f"./src/logs_error_rate_{ERROR_RATE}")
-SUMMARY_CSV = LOG_DIR / "summary.csv"
 
 # AxPike/AxRAM configuration
 AXPIKE_CMD = [
@@ -68,15 +57,16 @@ AXPIKE_CMD = [
 # ===============================
 
 def classify_jpeg_output(output_path: Path, timed_out: bool) -> dict:
+    """
+    Classifica apenas para imprimir no terminal.
+    Nada daqui é salvo em CSV.
+    """
+
     if not output_path.exists():
         return {
             "class": "TIMEOUT_OR_EMPTY" if timed_out else "MISSING_OUTPUT",
             "crash": False,
             "valid_jpeg": False,
-            "jpeg_soi": False,
-            "jpeg_eoi": False,
-            "jpeg_jfif": False,
-            "jpeg_exif": False,
         }
 
     data = output_path.read_bytes()
@@ -86,10 +76,6 @@ def classify_jpeg_output(output_path: Path, timed_out: bool) -> dict:
             "class": "TIMEOUT_OR_EMPTY",
             "crash": False,
             "valid_jpeg": False,
-            "jpeg_soi": False,
-            "jpeg_eoi": False,
-            "jpeg_jfif": False,
-            "jpeg_exif": False,
         }
 
     crash = (
@@ -101,7 +87,6 @@ def classify_jpeg_output(output_path: Path, timed_out: bool) -> dict:
     )
 
     jpeg_soi = data.startswith(b"\xff\xd8")
-    jpeg_eoi = data.endswith(b"\xff\xd9")
     jpeg_jfif = b"JFIF" in data[:256]
     jpeg_exif = b"Exif" in data[:256]
 
@@ -128,10 +113,6 @@ def classify_jpeg_output(output_path: Path, timed_out: bool) -> dict:
         "class": cls,
         "crash": crash,
         "valid_jpeg": valid_jpeg,
-        "jpeg_soi": jpeg_soi,
-        "jpeg_eoi": jpeg_eoi,
-        "jpeg_jfif": jpeg_jfif,
-        "jpeg_exif": jpeg_exif,
     }
 
 
@@ -202,9 +183,6 @@ def run_one(input_csv: Path, output_jpeg: Path, output_log: Path) -> dict:
     classification = classify_jpeg_output(output_jpeg, timed_out)
 
     return {
-        "input": str(input_csv),
-        "output": str(output_jpeg),
-        "log": str(output_log),
         "returncode": return_code,
         "timed_out": timed_out,
         "elapsed_sec": elapsed_sec,
@@ -215,75 +193,38 @@ def run_one(input_csv: Path, output_jpeg: Path, output_log: Path) -> dict:
 
 
 # ===============================
-# Summary
-# ===============================
-
-FIELDNAMES = [
-    "relative_path",
-    "input",
-    "output",
-    "log",
-    "error_rate",
-    "quality",
-    "class",
-    "crash",
-    "valid_jpeg",
-    "jpeg_soi",
-    "jpeg_eoi",
-    "jpeg_jfif",
-    "jpeg_exif",
-    "returncode",
-    "timed_out",
-    "elapsed_sec",
-    "output_bytes",
-    "log_bytes",
-    "exception",
-]
-
-
-def write_summary(rows) -> None:
-    SUMMARY_CSV.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(SUMMARY_CSV, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
-        writer.writeheader()
-        for row in rows:
-            writer.writerow({key: row.get(key, "") for key in FIELDNAMES})
-
-
-# ===============================
 # Batch execution
 # ===============================
 
-def print_outcome(row: dict) -> None:
-    cls = row["class"]
+def print_outcome(info: dict) -> None:
+    cls = info["class"]
 
     if cls == "VALID_JPEG":
         print(
             f"  -> Finished: VALID_JPEG "
-            f"bytes={row['output_bytes']} "
-            f"time={row['elapsed_sec']:.2f}s"
+            f"bytes={info['output_bytes']} "
+            f"time={info['elapsed_sec']:.2f}s"
         )
 
     elif cls == "AXPIKE_CRASH_DUMP":
-        print(f"  -> Finished: AXPIKE_CRASH_DUMP time={row['elapsed_sec']:.2f}s")
+        print(f"  -> Finished: AXPIKE_CRASH_DUMP time={info['elapsed_sec']:.2f}s")
 
     elif cls == "JPEG_WITH_CRASH_DUMP":
         print(
             f"  -> Finished: JPEG_WITH_CRASH_DUMP "
-            f"bytes={row['output_bytes']} "
-            f"time={row['elapsed_sec']:.2f}s"
+            f"bytes={info['output_bytes']} "
+            f"time={info['elapsed_sec']:.2f}s"
         )
 
     elif cls == "TIMEOUT_OR_EMPTY":
-        print(f"  -> Finished: TIMEOUT_OR_EMPTY time={row['elapsed_sec']:.2f}s")
+        print(f"  -> Finished: TIMEOUT_OR_EMPTY time={info['elapsed_sec']:.2f}s")
 
     else:
         print(
             f"  -> Finished: {cls} "
-            f"returncode={row['returncode']} "
-            f"bytes={row['output_bytes']} "
-            f"time={row['elapsed_sec']:.2f}s"
+            f"returncode={info['returncode']} "
+            f"bytes={info['output_bytes']} "
+            f"time={info['elapsed_sec']:.2f}s"
         )
 
 
@@ -297,15 +238,15 @@ def run_conversion() -> None:
         print(f"No .csv files found in {DATASET_DIR}")
         return
 
-    print(f"Found {len(csv_files)} files to process.")
+    total = len(csv_files)
+
+    print(f"Found {total} files to process.")
     print(f"Error rate: {ERROR_RATE}")
     print(f"Quality:    {QUALITY}")
     print(f"Padding:    {ADD_PK_STDIN_PADDING} ({PK_STDIN_PADDING_BYTES} ASCII spaces)")
     print(f"Output:     {OUTPUT_JPEG_DIR}")
     print(f"Logs:       {LOG_DIR}")
-    print(f"Summary:    {SUMMARY_CSV}")
-
-    rows = []
+    print()
 
     for idx, input_csv in enumerate(csv_files, start=1):
         relative_path = input_csv.relative_to(DATASET_DIR)
@@ -315,50 +256,34 @@ def run_conversion() -> None:
         output_jpeg.parent.mkdir(parents=True, exist_ok=True)
         output_log.parent.mkdir(parents=True, exist_ok=True)
 
-        print(f"[{idx}/{len(csv_files)}] processing: {relative_path}")
+        print(f"[{idx}/{total}] processing: {relative_path}")
         print(f"  -> Image: {output_jpeg.relative_to(OUTPUT_JPEG_DIR)}")
         print(f"  -> Log:   {output_log.relative_to(LOG_DIR)}")
 
         try:
-            row = run_one(input_csv, output_jpeg, output_log)
-            row["relative_path"] = str(relative_path)
-            row["error_rate"] = ERROR_RATE
-            row["quality"] = QUALITY
-            row["exception"] = ""
+            info = run_one(input_csv, output_jpeg, output_log)
 
         except Exception as exc:
-            row = {
-                "relative_path": str(relative_path),
-                "input": str(input_csv),
-                "output": str(output_jpeg),
-                "log": str(output_log),
-                "error_rate": ERROR_RATE,
-                "quality": QUALITY,
+            info = {
                 "class": "SCRIPT_ERROR",
-                "crash": False,
-                "valid_jpeg": False,
-                "jpeg_soi": False,
-                "jpeg_eoi": False,
-                "jpeg_jfif": False,
-                "jpeg_exif": False,
                 "returncode": "EXCEPTION",
                 "timed_out": False,
-                "elapsed_sec": "",
+                "elapsed_sec": 0.0,
                 "output_bytes": output_jpeg.stat().st_size if output_jpeg.exists() else 0,
                 "log_bytes": output_log.stat().st_size if output_log.exists() else 0,
-                "exception": str(exc),
+                "crash": False,
+                "valid_jpeg": False,
             }
 
-        rows.append(row)
-        print_outcome(row)
+            with open(output_log, "ab") as f_log:
+                f_log.write(f"\n[HOST] SCRIPT_ERROR: {exc}\n".encode("utf-8", errors="replace"))
 
-        # Incremental summary update.
-        write_summary(rows)
+        print_outcome(info)
 
-    print("\nCompleted!")
+    print()
+    print("Completed!")
     print(f"Images in: {OUTPUT_JPEG_DIR}")
     print(f"Logs in:   {LOG_DIR}")
-    print(f"Summary:   {SUMMARY_CSV}")
 
 
 if __name__ == "__main__":
