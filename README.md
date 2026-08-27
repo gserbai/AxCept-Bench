@@ -2,6 +2,10 @@
   <img src="docs/assets/axcept-bench-banner.svg" alt="AxCept-Bench — Approximate Computing Benchmark" width="900">
 </p>
 
+<p align="center">
+  <img src="docs/assets/axcept-bench-pipeline-animated.svg" alt="AxCept-Bench — Approximate Computing Benchmark" width="900">
+</p>
+
 # AxCept-Bench
 
 <p align="center">
@@ -37,7 +41,7 @@ AxPike + AxRAM
 Approximate Output        Memory Logs
    |                           |
    v                           v
-Quality Analysis          U Y Access Filter
+Results Analysis          U Y Access Filter
                                |
                                v
                            Ramulator

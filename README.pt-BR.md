@@ -37,7 +37,7 @@ AxPike + AxRAM
 Saída aproximada          Logs de memória
    |                           |
    v                           v
-Análise de qualidade       Filtro de acessos U Y
+Análise dos Resultados    Filtro de acessos U Y
                                |
                                v
                            Ramulator

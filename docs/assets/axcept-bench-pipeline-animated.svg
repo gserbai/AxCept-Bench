@@ -1,0 +1,286 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc" overflow="hidden">
+  <title id="title">Animated AxCept-Bench evaluation pipeline</title>
+  <desc id="desc">Animated diagram showing hardware approximation configuration and application execution through AxPike and AxRAM, evaluation of structural degradation and semantic validity, energy estimation with Ramulator and DRAMPower, and identification of a safe approximation region.</desc>
+
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050b14"/>
+      <stop offset="0.55" stop-color="#091427"/>
+      <stop offset="1" stop-color="#11142c"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#23d8ff"/>
+      <stop offset="0.5" stop-color="#638bff"/>
+      <stop offset="1" stop-color="#a45fff"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a2035"/>
+      <stop offset="1" stop-color="#151a38"/>
+    </linearGradient>
+    <linearGradient id="safe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#153d34"/>
+      <stop offset="1" stop-color="#09241f"/>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#6982a3" stroke-width="0.6" opacity="0.1"/>
+    </pattern>
+    <filter id="cyanGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="greenGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#7890ad"/>
+    </marker>
+    <marker id="arrowCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#30d9ff"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#4be0a7"/>
+    </marker>
+  </defs>
+
+  <rect x="4" y="4" width="1392" height="612" rx="28" fill="url(#background)" stroke="url(#frame)" stroke-width="2"/>
+  <rect x="6" y="6" width="1388" height="608" rx="26" fill="url(#grid)"/>
+
+  <text x="54" y="48" fill="#dce8f8" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="17" font-weight="700" letter-spacing="2.2">AXCEPT-BENCH / EVALUATION PIPELINE</text>
+  <text x="1338" y="48" text-anchor="end" fill="#657e9e" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="10.5" letter-spacing="1.3">RISC-V · APPROXIMATE DRAM · SEMANTIC ACCEPTABILITY</text>
+
+  <!-- Static connections -->
+  <g fill="none" stroke="#647c99" stroke-width="2" marker-end="url(#arrow)" opacity="0.82">
+    <path d="M195 297H238"/>
+    <path d="M642 297H688"/>
+    <path d="M834 270H875"/>
+    <path d="M834 337H875"/>
+    <path d="M1120 253H1150"/>
+    <path d="M1120 342H1150"/>
+    <path d="M441 166V206" stroke-dasharray="7 7"/>
+    <path d="M364 406V457"/>
+    <path d="M470 506H505"/>
+    <path d="M807 506H846"/>
+    <path d="M1038 506H1255V409" stroke-dasharray="7 7"/>
+  </g>
+
+  <!-- Animated signal overlays -->
+  <g fill="none" stroke-linecap="round" stroke-width="3">
+    <path d="M195 297H238" stroke="#2bd9ff" stroke-dasharray="7 10" marker-end="url(#arrowCyan)">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M642 297H688" stroke="#2bd9ff" stroke-dasharray="7 10" marker-end="url(#arrowCyan)">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M834 270H875" stroke="#8e81ff" stroke-dasharray="7 10">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M834 337H875" stroke="#8e81ff" stroke-dasharray="7 10">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M1120 253H1150M1120 342H1150" stroke="#4be0a7" stroke-dasharray="7 10">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M441 166V206" stroke="#ffba62" stroke-dasharray="6 9">
+      <animate attributeName="stroke-dashoffset" from="30" to="0" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M364 406V457M470 506H505M807 506H846" stroke="#ffba62" stroke-dasharray="7 10">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M1038 506H1255V409" stroke="#4be0a7" stroke-dasharray="7 10">
+      <animate attributeName="stroke-dashoffset" from="34" to="0" dur="1.7s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Hardware approximation configuration -->
+  <g aria-label="Hardware approximation configuration">
+    <rect x="276" y="75" width="330" height="91" rx="14" fill="#0b1727" stroke="#526984" stroke-width="2" stroke-dasharray="8 6"/>
+    <rect x="277" y="76" width="328" height="89" rx="13" fill="none" stroke="#ffba62" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.04;0.18;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(306 95)" fill="none" stroke="#ffca7c" stroke-width="3" stroke-linecap="round">
+      <path d="M0 38A28 28 0 0 1 56 38"/>
+      <path d="M8 21L13 25M48 21L43 25M28 10V16"/>
+      <path d="M28 38L42 20" filter="url(#cyanGlow)">
+        <animateTransform attributeName="transform" type="rotate" values="-28 28 38;22 28 38;-12 28 38" dur="5s" repeatCount="indefinite"/>
+      </path>
+      <circle cx="28" cy="38" r="3.5" fill="#ffca7c" stroke="none"/>
+    </g>
+    <text x="480" y="112" text-anchor="middle" fill="#edf3fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="16.5" font-weight="700">Hardware approximation</text>
+    <text x="480" y="137" text-anchor="middle" fill="#edf3fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="16.5" font-weight="700">configuration</text>
+    <text x="480" y="154" text-anchor="middle" fill="#8aa0bb" font-family="DejaVu Sans Mono, monospace" font-size="7.5" letter-spacing="0.65">ERROR PROBABILITY · VOLTAGE LEVEL</text>
+  </g>
+
+  <!-- Application -->
+  <g aria-label="Application">
+    <rect x="45" y="218" width="150" height="178" rx="15" fill="#0a1626" stroke="#405a76" stroke-width="2"/>
+    <rect x="46" y="219" width="148" height="176" rx="14" fill="none" stroke="#2bd9ff" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0" keyTimes="0;0.1;0.14;0.3;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(90 250)" fill="none" stroke="#8ca1ba" stroke-width="2">
+      <rect width="60" height="68" rx="6"/>
+      <path d="M0 17H60"/>
+      <circle cx="9" cy="8.5" r="2" fill="#2bd9ff" stroke="none"/>
+      <circle cx="17" cy="8.5" r="2" fill="#7288a3" stroke="none"/>
+      <circle cx="25" cy="8.5" r="2" fill="#7288a3" stroke="none"/>
+      <path d="M13 30H25M13 42H38M13 54H31" stroke="#d7e5f4"/>
+    </g>
+    <text x="120" y="358" text-anchor="middle" fill="#edf3fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" font-weight="700">Application</text>
+    <text x="120" y="377" text-anchor="middle" fill="#7990aa" font-family="DejaVu Sans Mono, monospace" font-size="8.5" letter-spacing="1">JPEG · FFT</text>
+  </g>
+
+  <!-- AxCept-Bench core -->
+  <g aria-label="AxCept-Bench AxPike and AxRAM">
+    <rect x="238" y="206" width="404" height="200" rx="17" fill="url(#core)" stroke="#4f6c8f" stroke-width="2"/>
+    <rect x="239" y="207" width="402" height="198" rx="16" fill="none" stroke="#2bd9ff" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0" keyTimes="0;0.17;0.21;0.42;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(268 242)">
+      <rect x="0" y="0" width="91" height="91" rx="12" fill="#08172a" stroke="#2bd9ff" stroke-width="1.5"/>
+      <g stroke="#416c8b" stroke-width="2">
+        <path d="M12 -7V7M28 -7V7M44 -7V7M60 -7V7M76 -7V7"/>
+        <path d="M12 84V98M28 84V98M44 84V98M60 84V98M76 84V98"/>
+        <path d="M-7 13H7M-7 31H7M-7 49H7M-7 67H7"/>
+        <path d="M84 13H98M84 31H98M84 49H98M84 67H98"/>
+      </g>
+      <path d="M17 48H29L36 30L48 65L58 39L67 48H76" fill="none" stroke="#33ddff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#cyanGlow)">
+        <animate attributeName="stroke" values="#33ddff;#33ddff;#ff5eaa;#33ddff" keyTimes="0;0.58;0.68;1" dur="4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <text x="482" y="263" text-anchor="middle" fill="#f1f6fc" font-family="DejaVu Sans, Arial, sans-serif" font-size="27" font-weight="800">AxCept-Bench</text>
+    <text x="482" y="299" text-anchor="middle" fill="#93dfff" font-family="DejaVu Sans Mono, monospace" font-size="18" font-weight="700" letter-spacing="1.5">AxPike + AxRAM</text>
+    <path d="M377 322H616" stroke="#425975" stroke-width="1"/>
+    <g font-family="DejaVu Sans Mono, monospace" font-size="8.5" font-weight="700">
+      <path d="M385 346L375 364H386L380 382L399 357H388L395 346Z" fill="#ff65aa"/>
+      <text x="406" y="366" fill="#d7e3f1">fault injection</text>
+      <g transform="translate(515 345)" fill="none" stroke="#9a8cff" stroke-width="1.3">
+        <rect width="28" height="22" rx="3"/>
+        <path d="M6 5V17M12 5V17M18 5V17M24 5V17"/>
+      </g>
+      <text x="549" y="366" fill="#d7e3f1">resilient memory</text>
+    </g>
+    <g font-family="DejaVu Sans Mono, monospace" font-size="8" fill="#4edfff" opacity="0.55">
+      <text x="371" y="393">01101001 11000101 00101110</text>
+    </g>
+  </g>
+
+  <!-- Evaluation -->
+  <g aria-label="Evaluation">
+    <rect x="688" y="218" width="146" height="178" rx="15" fill="#0d172a" stroke="#536a86" stroke-width="2"/>
+    <rect x="689" y="219" width="144" height="176" rx="14" fill="none" stroke="#8e81ff" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0" keyTimes="0;0.35;0.39;0.56;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(723 252)">
+      <rect x="0" y="34" width="13" height="31" fill="#6d84a4"/>
+      <rect x="20" y="17" width="13" height="48" fill="#8e81ff"/>
+      <rect x="40" y="3" width="13" height="62" fill="#2bd9ff"/>
+      <circle cx="69" cy="34" r="21" fill="none" stroke="#d9e7f6" stroke-width="3"/>
+      <path d="M84 49L101 66" stroke="#d9e7f6" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <text x="761" y="365" text-anchor="middle" fill="#edf3fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" font-weight="700">Evaluation</text>
+  </g>
+
+  <!-- Structural degradation -->
+  <g aria-label="Structural degradation">
+    <rect x="875" y="206" width="245" height="94" rx="14" fill="#10172b" stroke="#526985" stroke-width="2"/>
+    <rect x="876" y="207" width="243" height="92" rx="13" fill="none" stroke="#8e81ff" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0" keyTimes="0;0.44;0.48;0.65;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(897 226)" stroke="#a6b5c8" stroke-width="1.5">
+      <rect width="54" height="54" rx="3" fill="#0a1424"/>
+      <path d="M18 0V54M36 0V54M0 18H54M0 36H54"/>
+      <rect x="19" y="19" width="16" height="16" fill="#ff5eaa" stroke="none" opacity="0.2">
+        <animate attributeName="opacity" values="0.12;0.8;0.12" dur="3s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="1012" y="245" fill="#f0f4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">Structural</text>
+    <text x="1012" y="270" fill="#f0f4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">degradation</text>
+  </g>
+
+  <!-- Semantic validity -->
+  <g aria-label="Semantic validity">
+    <rect x="875" y="315" width="245" height="94" rx="14" fill="#10172b" stroke="#526985" stroke-width="2"/>
+    <rect x="876" y="316" width="243" height="92" rx="13" fill="none" stroke="#4be0a7" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0" keyTimes="0;0.48;0.52;0.72;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(900 333)" fill="#11182c" stroke="#9db0c7" stroke-width="1.7">
+      <path d="M7 21L30 6L56 21L50 53L21 62L3 43Z M7 21L21 62M30 6L50 53M56 21L3 43M7 21L50 53"/>
+      <circle cx="7" cy="21" r="5"/><circle cx="30" cy="6" r="5"/><circle cx="56" cy="21" r="5"/>
+      <circle cx="50" cy="53" r="5"/><circle cx="21" cy="62" r="5"/><circle cx="3" cy="43" r="5"/>
+      <circle cx="30" cy="35" r="5" fill="#4be0a7" stroke="none" filter="url(#greenGlow)">
+        <animate attributeName="opacity" values="0.4;1;0.4" dur="2.2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <text x="1012" y="354" fill="#f0f4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">Semantic</text>
+    <text x="1012" y="379" fill="#f0f4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">validity</text>
+  </g>
+
+  <!-- Safe approximation region -->
+  <g aria-label="Safe approximation region">
+    <rect x="1150" y="206" width="210" height="203" rx="17" fill="url(#safe)" stroke="#4be0a7" stroke-width="2"/>
+    <rect x="1151" y="207" width="208" height="201" rx="16" fill="none" stroke="#77f1bd" stroke-width="3" opacity="0.12">
+      <animate attributeName="opacity" values="0.12;0.12;1;0.35;0.12" keyTimes="0;0.67;0.76;0.9;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(1210 224) scale(0.9)" fill="none" stroke="#d7fff0" stroke-width="3">
+      <path d="M50 0C68 14 83 17 95 18V60C95 91 74 111 50 125C26 111 5 91 5 60V18C17 17 32 14 50 0Z"/>
+      <path d="M28 61L44 77L73 43" stroke="#4be0a7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="url(#greenGlow)">
+        <animate attributeName="stroke-dasharray" values="0 80;80 0;80 0" keyTimes="0;0.18;1" dur="3s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <text x="1255" y="360" text-anchor="middle" fill="#eafff6" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">Safe</text>
+    <text x="1255" y="380" text-anchor="middle" fill="#eafff6" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">approximation</text>
+    <text x="1255" y="400" text-anchor="middle" fill="#eafff6" font-family="DejaVu Sans, Arial, sans-serif" font-size="15.5" font-weight="700">region</text>
+  </g>
+
+  <!-- Memory trace statistics -->
+  <g aria-label="Memory trace statistics">
+    <rect x="258" y="457" width="212" height="98" rx="14" fill="#0a1626" stroke="#526985" stroke-width="2"/>
+    <rect x="259" y="458" width="210" height="96" rx="13" fill="none" stroke="#ffba62" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0" keyTimes="0;0.35;0.39;0.58;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(276 475)" fill="none" stroke="#b9c8da" stroke-width="1.7">
+      <path d="M0 0H34L50 16V64H0Z"/>
+      <path d="M34 0V16H50M10 29H40M10 40H40M10 51H31"/>
+    </g>
+    <text x="397" y="493" text-anchor="middle" fill="#eff4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="15" font-weight="700">Memory trace</text>
+    <text x="397" y="518" text-anchor="middle" fill="#eff4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="15" font-weight="700">statistics</text>
+    <text x="397" y="540" text-anchor="middle" fill="#839ab5" font-family="DejaVu Sans Mono, monospace" font-size="8">READS · WRITES · CYCLES</text>
+  </g>
+
+  <!-- Ramulator / DRAMPower -->
+  <g aria-label="Ramulator and DRAMPower">
+    <rect x="505" y="457" width="302" height="98" rx="14" fill="#0a1626" stroke="#526985" stroke-width="2"/>
+    <rect x="506" y="458" width="300" height="96" rx="13" fill="none" stroke="#ffba62" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0" keyTimes="0;0.46;0.5;0.7;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <g transform="translate(529 474)" fill="none" stroke="#ffca7c" stroke-width="1.5">
+      <rect width="42" height="25" rx="4"/><path d="M7 6V19M14 6V19M21 6V19M28 6V19M35 6V19"/>
+      <rect y="39" width="42" height="25" rx="4"/><path d="M7 45V58M14 45V58M21 45V58M28 45V58M35 45V58"/>
+    </g>
+    <text x="665" y="492" text-anchor="middle" fill="#eff4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="700">Ramulator</text>
+    <text x="665" y="529" text-anchor="middle" fill="#eff4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="700">DRAMPower</text>
+  </g>
+
+  <!-- Estimated energy -->
+  <g aria-label="Estimated energy">
+    <rect x="846" y="457" width="192" height="98" rx="14" fill="#11182a" stroke="#526985" stroke-width="2"/>
+    <rect x="847" y="458" width="190" height="96" rx="13" fill="none" stroke="#ffba62" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0" keyTimes="0;0.55;0.59;0.76;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <path d="M877 475L860 510H880L869 542L903 499H883L895 475Z" fill="#ffba62" filter="url(#cyanGlow)"/>
+    <text x="961" y="494" text-anchor="middle" fill="#eff4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="700">Estimated</text>
+    <text x="961" y="520" text-anchor="middle" fill="#eff4fb" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="700">energy</text>
+  </g>
+
+  <!-- Moving tokens that clarify sequence -->
+  <g filter="url(#cyanGlow)">
+    <circle r="5" fill="#2bd9ff" transform="translate(195 297)"><animateTransform attributeName="transform" type="translate" from="195 297" to="238 297" dur="1.5s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#2bd9ff" transform="translate(642 297)"><animateTransform attributeName="transform" type="translate" from="642 297" to="688 297" begin="-0.7s" dur="1.5s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#8e81ff" transform="translate(834 270)"><animateTransform attributeName="transform" type="translate" from="834 270" to="875 270" dur="1.8s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#8e81ff" transform="translate(834 337)"><animateTransform attributeName="transform" type="translate" from="834 337" to="875 337" begin="-0.9s" dur="1.8s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#4be0a7" transform="translate(1120 253)"><animateTransform attributeName="transform" type="translate" from="1120 253" to="1150 253" dur="1.6s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#4be0a7" transform="translate(1120 342)"><animateTransform attributeName="transform" type="translate" from="1120 342" to="1150 342" begin="-0.8s" dur="1.6s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <text x="700" y="596" text-anchor="middle" fill="#91a5be" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Overview of the AxCept-Bench evaluation pipeline</text>
+</svg>
