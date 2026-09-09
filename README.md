@@ -1,17 +1,4 @@
-<p align="center">
-  <img src="docs/assets/axcept-bench-banner.svg" alt="AxCept-Bench — Approximate Computing Benchmark" width="900">
-</p>
-
-<p align="center">
-  <img src="docs/assets/axcept-bench-pipeline-animated.svg" alt="AxCept-Bench — Approximate Computing Benchmark" width="900">
-</p>
-
 # AxCept-Bench
-
-<p align="center">
-  <strong>English</strong> ·
-  <a href="README.pt-BR.md">Português (Brasil)</a>
-</p>
 
 **AxCept-Bench** is an experimental infrastructure for studying the trade-off between output quality and energy savings in approximate computing.
 
@@ -94,26 +81,13 @@ scripts/drampower/      DRAMPower batch execution
 scripts/utils/          converters and utilities
 ```
 
-Keep source code, executables, and results separate. One possible layout is:
-
-```text
-applications/jpeg/src/       JPEG sources
-applications/fft/src/        FFT sources
-bin/jpeg/                     JPEG executable
-bin/fft/                      FFT executable
-experiments/jpeg/             JPEG results
-experiments/fft/              FFT results
-```
-
-These names are only suggestions. If you use a different layout, update the paths in the scripts accordingly.
-
 ## Dependencies
 
 The workflow was developed for Linux and requires:
 
 - Python 3.10 or newer;
 - a C/C++ compiler and Make;
-- the `riscv64-unknown-elf` toolchain;
+- the `riscv64-unknown-elf` toolchain [RISC-V GNU Compiler Toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain);
 - AxPike;
 - Proxy Kernel (`pk`);
 - Ramulator;
@@ -159,8 +133,8 @@ The commands below are provided for reference. Installation prefixes and toolcha
 ```bash
 mkdir -p axpike-pk/build
 cd axpike-pk/build
-../configure --prefix=/path/to/riscv --host=riscv64-unknown-elf
-make -j4
+../configure --prefix=$RISCV --host=riscv64-unknown-elf
+make -j
 make install
 cd ../..
 ```
@@ -173,13 +147,11 @@ cd ../..
 ```bash
 mkdir -p axpike-isa-sim/build
 cd axpike-isa-sim/build
-../configure --prefix=/path/to/riscv
+../configure --prefix=$RISCV
 make -j4
 make install
 cd ../..
 ```
-
-If the programs are not installed system-wide, add their local paths to the experiment's runtime environment.
 
 ### Ramulator
 
@@ -196,13 +168,6 @@ make -C DRAMPower-4.1 -j4 drampower
 The current batch workflow uses `DRAMPower-4.1/drampower`. The submodule under `drampower/` provides a different command-line interface.
 
 ## Building the Workloads
-
-Create a directory for executables outside `src`:
-
-```bash
-mkdir -p bin/jpeg bin/fft
-```
-
 ### JPEG
 
 ```bash
@@ -229,13 +194,6 @@ After building, set `APP_BIN` in the corresponding runner to the executable path
 
 The JPEG workload accepts CSV files. Each file must contain the width and height, followed by `width × height × 3` RGB values.
 
-Minimal example for a 2 × 1 pixel image:
-
-```csv
-2,1
-255,0,0,0,255,0
-```
-
 One possible dataset layout is:
 
 ```text
@@ -243,8 +201,6 @@ dataset_csv/
 └── class/
     └── image.csv
 ```
-
-The repository does not include a general-purpose image converter for this format.
 
 ### Configuration
 
@@ -442,7 +398,7 @@ The main output files are:
 
 The Ramulator configuration, DRAMPower memory specifications (`memspecs`), and voltage map must represent the same memory.
 
-## Quality Analyses
+## Analyses
 
 Quality analyses can be run independently of the energy analysis stage.
 
