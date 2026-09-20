@@ -10,3 +10,6 @@
 [submodule "drampower"]
 	path = drampower
 	url = https://github.com/tukl-msd/DRAMPower.git
+[submodule "scripts/analysis/semantickmeans/openalpr"]
+	path = scripts/analysis/platerecognition_jpeg/openalpr
+	url = https://github.com/openalpr/openalpr.git
