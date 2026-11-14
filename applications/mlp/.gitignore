@@ -1,0 +1,35 @@
+# ---- mlp: generated at runtime (see Makefile clean/distclean) ----
+mlp/dataset_digits/
+mlp/*.bin
+mlp/train_exact_host
+mlp/eval_exact_host
+mlp/gen_init_weights_host
+mlp/validate_kernel_axpike
+mlp/train_kernel_axpike
+mlp/*.o
+
+# experiment outputs
+mlp/axpike_artifacts_*/
+mlp/digits_logs_*/
+mlp/digits_records_*/
+mlp/digits_summary_*.csv
+mlp/energytrain/
+mlp/*.log
+mlp/*.stdout.raw
+mlp/genann_train_axram_runs.csv
+mlp/train_results.csv
+mlp/validate_matrix_results.csv
+mlp/seedtest.csv
+mlp/genann_report.txt
+mlp/genann_report_training.csv
+mlp/genann_report_validation.csv
+
+# backups
+*.bak*
+
+# python / editors
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store

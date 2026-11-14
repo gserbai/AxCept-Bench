@@ -1,0 +1,17 @@
+# Static defaults for scripts/axcept.py (energy pipeline: AxRAM -> Ramulator -> DRAMPower).
+# Relative paths are resolved from the repository root.
+
+[tools]
+ramulator = "ramulator/ramulator"
+drampower = "DRAMPower-4.1/drampower"
+
+[defaults]
+profile = "vendor_b"
+jobs = 4
+
+# A profile pairs a Ramulator config with a DRAMPower voltage map (which points to the memspecs).
+# Both must describe the same memory. Add new profiles here and select them with --profile.
+[profiles.vendor_b]
+description = "Micron 2Gb DDR3-1600 x16, Vendor B voltage/error mapping"
+ramulator_config = "configs/ramulator/DDR3_2Gb_x16.cfg"
+voltage_map = "configs/drampower/voltage_map_vendor_b.csv"

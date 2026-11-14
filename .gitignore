@@ -13,7 +13,14 @@ obj/
 *.so
 *.out
 
+# Compiled RISC-V workloads
+bin/
+toojpeg_encoder
+
 # Local experiment outputs
+experiments/
+*.pth
+*.pt
 logs/
 logs_*/
 outputs/

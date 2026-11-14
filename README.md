@@ -1,25 +1,29 @@
 # AxCept-Bench
 
-**AxCept-Bench** is an experimental infrastructure for studying the trade-off between output quality and energy savings in approximate computing.
+**AxCept-Bench** is an experimental infrastructure for studying the trade-off between output quality, both structural and semantic, and energy savings in approximate computing.
 
-The project runs RISC-V applications on **AxPike**, injects read faults using the **AxRAM** model, evaluates output degradation, and converts memory accesses into energy estimates using **Ramulator** and **DRAMPower**.
+RISC-V applications run on **AxPike**, read faults are injected by the **AxRAM** model, output degradation is evaluated, and memory accesses are converted into energy estimates using **Ramulator** and **DRAMPower**.
 
-There are currently two main workloads:
+This repository provides the benchmark components and supporting scripts. It does not provide a turnkey experiment: datasets are not included, and some scripts use hard-coded constants that must be configured before execution.
 
-- **JPEG:** image compression with crash analysis, SSIM assessment, and semantic quality evaluation;
-- **FFT / dominant frequency:** audio processing with crash analysis, frequency-error measurement, and MIDI note matching.
+## Applications
 
-This repository provides the benchmark components and supporting scripts. It does not provide a turnkey experiment. Researchers must choose datasets, error rates, memory configurations, and metrics, and organize results to suit their study.
+| Application | Location | Batch runner | Quality evaluation |
+|---|---|---|---|
+| JPEG | `applications/jpeg` | `applications/jpeg/axcept_batch_jpeg.py` | crash analysis, SSIM, semantic quality, plate recognition |
+| FFT (dominant frequency) | `applications/fft` | `applications/fft/axcept_batch_fft.py` | crash analysis, frequency error, MIDI note matching |
+| Sobel (edge detection) | `applications/sobel` | `applications/sobel/axcept_batch_sobel.py` | plate recognition (OpenALPR) |
+| MLP (GENANN neural network) | `applications/mlp` | `run_validate_axram.py`, `run_train_axram.py` | classification accuracy |
 
-> Datasets are not included in the repository. Some scripts use hard-coded constants and must be configured before execution.
+To build and run JPEG and FFT on AxPike, see the [application build and execution guide](applications/usage.md). Sobel and MLP have their own guides: [applications/sobel/README.md](applications/sobel/README.md) and [applications/mlp/README.md](applications/mlp/README.md).
 
-## Workflow Overview
+## Workflow
 
 ```text
 Dataset
    |
    v
-RISC-V Application (JPEG or FFT)
+RISC-V Application
    |
    v
 AxPike + AxRAM
@@ -28,7 +32,7 @@ AxPike + AxRAM
 Approximate Output        Memory Logs
    |                           |
    v                           v
-Results Analysis          U Y Access Filter
+Quality Analysis          U Y Access Filter
                                |
                                v
                            Ramulator
@@ -40,61 +44,48 @@ Results Analysis          U Y Access Filter
                         Energy and Power
 ```
 
-In a typical experiment:
-
-1. build the workload for RISC-V;
-2. choose a dataset and a read error rate;
-3. run the workload on AxPike with AxRAM enabled;
-4. store workload outputs, standard error logs, and AxRAM traces separately;
-5. repeat the execution for all error rates under study;
-6. evaluate output stability and quality;
-7. process the traces with Ramulator and DRAMPower;
-8. compare output quality and energy consumption against the exact baseline.
-
-A common set of probabilities is:
-
-| Scenario | `mem_read_prob` |
-|---|---:|
-| Exact | `0` |
-| Approximate | `1e-5` |
-| Approximate | `1e-4` |
-| Approximate | `1e-3` |
-| Approximate | `1e-2` |
-| Approximate | `1e-1` |
-
-For the exact baseline, AxRAM may remain enabled with probability `0`. This makes it possible to generate traces that are comparable to those from the approximate scenarios.
+Each application is run once per read error rate (`mem_read_prob`). A common set is `0` (exact baseline), `1e-5`, `1e-4`, `1e-3`, `1e-2` and `1e-1`. The baseline can keep AxRAM enabled with probability `0`, so its traces are comparable to the approximate ones.
 
 ## Repository Layout
 
 ```text
-applications/           JPEG and FFT workloads
+applications/           workloads (JPEG, FFT, Sobel, MLP/GENANN): batch runner, sources and analyses of each
 axpike-isa-sim/         AxPike simulator
 axpike-pk/              RISC-V Proxy Kernel
 ramulator/              memory simulator
 DRAMPower-4.1/          energy model used by the current workflow
-drampower/              newer DRAMPower version
-scripts/benchmarks/     workload runners
-scripts/analysis/       stability and quality analyses
-scripts/axram/          AxRAM log processing
-scripts/ramulator/      Ramulator batch execution
-scripts/drampower/      DRAMPower batch execution
-scripts/utils/          converters and utilities
+drampower/              newer DRAMPower version (different CLI, not used by the scripts)
+configs/                Ramulator configuration, DRAMPower memspecs / voltage map, pipeline.toml
+energy/axcept.py        energy pipeline entry point (AxRAM logs -> Ramulator -> DRAMPower)
+energy/axram/           AxRAM log processing
+energy/ramulator/       Ramulator batch execution
+energy/drampower/       DRAMPower batch execution
+energy/analysis/        energy analyses (bootstrap confidence intervals)
 ```
 
-## Dependencies
+Each application keeps its own analyses next to its runner. Not every application has every folder, and MLP has its own layout (see [its README](applications/mlp/README.md)):
+
+```text
+applications/<app>/
+├── README.md                  how to build and run the application
+├── axcept_batch_<app>.py      batch runner (one run per error rate)
+├── src/                       application sources
+├── utils/                     dataset converters
+├── output_analyzer/           crash / timeout / valid output classification
+├── quality_metric/            quality metrics (e.g. SSIM)
+└── acceptability_semantic/    semantic acceptability (e.g. classifier, plate recognition)
+```
+
+## Setting Up the Environment
 
 The workflow was developed for Linux and requires:
 
-- Python 3.10 or newer;
+- Python 3.11 or newer;
 - a C/C++ compiler and Make;
-- the `riscv64-unknown-elf` toolchain [RISC-V GNU Compiler Toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain);
-- AxPike;
-- Proxy Kernel (`pk`);
-- Ramulator;
-- DRAMPower 4.1;
-- Python libraries required by some analyses.
+- the [RISC-V GNU toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) (`riscv64-unknown-elf`);
+- AxPike, the Proxy Kernel (`pk`), Ramulator and DRAMPower 4.1 (built below).
 
-Basic packages for Ubuntu/Debian:
+### System packages (Ubuntu/Debian)
 
 ```bash
 sudo apt-get update
@@ -105,7 +96,9 @@ sudo apt-get install build-essential autoconf automake libtool pkg-config \
   python3 python3-pip python3-venv ffmpeg
 ```
 
-Libraries used by the analyses:
+### Python libraries
+
+Only needed by the quality analyses. The AxRAM, Ramulator and DRAMPower scripts use the standard library.
 
 ```bash
 python3 -m venv .venv
@@ -114,21 +107,17 @@ python3 -m pip install numpy pillow scikit-image tqdm matplotlib \
   pandas seaborn torch torchvision
 ```
 
-The AxRAM trace-extraction and Ramulator/DRAMPower batch scripts use only the Python standard library.
-
-## Submodules
-
-After cloning the project:
+### Submodules
 
 ```bash
 git submodule update --init --recursive
 ```
 
-## Building the Infrastructure
+### Building the infrastructure
 
-The commands below are provided for reference. Installation prefixes and toolchain options may vary depending on the laboratory environment.
+Set `RISCV` to the toolchain installation prefix. Prefixes and options may vary depending on your environment.
 
-### Proxy Kernel
+**Proxy Kernel**
 
 ```bash
 mkdir -p axpike-pk/build
@@ -139,10 +128,9 @@ make install
 cd ../..
 ```
 
-> Before running the workloads, see the [application build and execution guide](applications/usage.md).
-> It explains how to suppress the `bbl loader` message in the Proxy Kernel so that it does not contaminate binary output, and also provides the commands for building and running applications on AxPike.
+> Applications write binary data to stdout, so the `bbl loader` message printed by the Proxy Kernel would corrupt it. Silence it before building `pk`; the steps are in the [application guide](applications/usage.md).
 
-### AxPike
+**AxPike**
 
 ```bash
 mkdir -p axpike-isa-sim/build
@@ -153,461 +141,75 @@ make install
 cd ../..
 ```
 
-### Ramulator
+**Ramulator**
 
 ```bash
 make -C ramulator -j4
 ```
 
-### DRAMPower 4.1
+**DRAMPower 4.1**
 
 ```bash
 make -C DRAMPower-4.1 -j4 drampower
 ```
 
-The current batch workflow uses `DRAMPower-4.1/drampower`. The submodule under `drampower/` provides a different command-line interface.
-
-## Building the Workloads
-### JPEG
-
-```bash
-riscv64-unknown-elf-g++ -O3 -static \
-  -o bin/jpeg/toojpeg_encoder \
-  applications/jpeg/src/main.cpp \
-  applications/jpeg/src/toojpeg.cpp
-```
-
-### FFT
-
-```bash
-riscv64-unknown-elf-g++ -O3 -static \
-  -o bin/fft/dominant_freq \
-  applications/fft/src/dominant_freq.cpp \
-  applications/fft/src/kiss_fft.c -lm
-```
-
-After building, set `APP_BIN` in the corresponding runner to the executable path. The current runners do not expose every configuration option through the command line.
-
-## JPEG Benchmark
-
-### Input Format
-
-The JPEG workload accepts CSV files. Each file must contain the width and height, followed by `width × height × 3` RGB values.
-
-One possible dataset layout is:
-
-```text
-dataset_csv/
-└── class/
-    └── image.csv
-```
-
-### Configuration
-
-Before running the benchmark, open:
-
-```text
-scripts/benchmarks/jpeg/axcept_batch_jpeg.py
-```
-
-Configure at least:
-
-- `ERROR_RATE`;
-- `QUALITY`;
-- `TIMEOUT_SEC`;
-- `DATASET_DIR`;
-- `APP_BIN`;
-- `OUTPUT_JPEG_DIR`;
-- `LOG_DIR`.
-
-The executable may be located at `bin/jpeg/toojpeg_encoder`. Use either an absolute path or a path that is correct relative to the working directory.
-
-### Running
-
-```bash
-python3 scripts/benchmarks/jpeg/axcept_batch_jpeg.py
-```
-
-The application's stdout is saved as a JPEG file. `stderr` from each run is saved separately. The `AXRAM_log_pid*_hart*.log` files are generated by AxRAM in the working directory.
-
-## FFT Benchmark
-
-### Input Format
-
-The input must be raw `.bin` audio with:
-
-- one channel;
-- a 44,100 Hz sample rate;
-- little-endian `float32` samples;
-- no header.
-
-The AIFF conversion utility is located at:
-
-```text
-scripts/utils/convert_iowa_aif_to_bin.py
-```
-
-Configure the directories inside the script and run:
-
-```bash
-python3 scripts/utils/convert_iowa_aif_to_bin.py
-```
-
-### Configuration
-
-Before running the benchmark, open:
-
-```text
-scripts/benchmarks/fft/axcept_batch_fft_final_parallel.py
-```
-
-Configure at least:
-
-- `ERROR_RATE`;
-- `DATASET_DIR`;
-- `APP_BIN`;
-- `OUTPUT_BIN_DIR`;
-- `LOG_DIR`;
-- `TIMEOUT_SEC`;
-- `MAX_WORKERS`.
-
-The executable may be located at `bin/fft/dominant_freq`.
-
-### Running
-
-```bash
-python3 scripts/benchmarks/fft/axcept_batch_fft_final_parallel.py
-```
-
-A valid output record is 24 bytes long and starts with the `AXDFREQ1` identifier. The record contains the status, number of samples, number of frames, and dominant frequency in Hz.
-
-## Experiment Organization
-
-Run each error rate in an isolated directory. For example:
-
-```text
-experiments/
-├── jpeg/
-│   ├── dataset_error_rate_0/
-│   ├── dataset_error_rate_1e-5/
-│   ├── dataset_error_rate_1e-4/
-│   ├── dataset_error_rate_1e-3/
-│   ├── dataset_error_rate_1e-2/
-│   └── dataset_error_rate_1e-1/
-└── fft/
-    ├── dataset_error_rate_0/
-    ├── dataset_error_rate_1e-5/
-    ├── dataset_error_rate_1e-4/
-    ├── dataset_error_rate_1e-3/
-    ├── dataset_error_rate_1e-2/
-    └── dataset_error_rate_1e-1/
-```
-
-Within each scenario, keep the following separate:
-
-```text
-outputs/                     workload output
-logs/                        execution stderr
-AXRAM_log_pid*_hart*.log     raw AxRAM traces
-```
-
-This separation prevents results from being mixed with `applications/*/src` and makes the experiment easier to reproduce.
-
 ## Energy Pipeline
 
-### 1. Filter AxRAM Accesses
+This stage is the same for every application: it only reads the `AXRAM_log_pid*_hart*.log` traces written by AxPike. Put the traces of each error rate in its own directory, named after the scenarios of the voltage map (`dataset_error_rate_0`, `dataset_error_rate_1e-5`, ...), inside one experiment directory. The [application guide](applications/usage.md#5-organizing-the-runs-for-the-energy-pipeline) shows how to do this with the batch runners.
 
-The extractor selects lines beginning with `U Y` and preserves the scenario structure.
+### Single command
+
+`energy/axcept.py` runs the three steps below with the tools, Ramulator config and voltage map taken from [`configs/pipeline.toml`](configs/pipeline.toml), so only the experiment directory has to be given:
 
 ```bash
-python3 scripts/axram/extract_uy_structure.py \
-  experiments/jpeg \
-  --output-dir experiments/jpeg/uy_filtered
+python3 energy/axcept.py config                          # show config, validate memspecs, list scenarios
+python3 energy/axcept.py run -w experiments/<app>        # extract + ramulator + drampower
+python3 energy/axcept.py ramulator -w experiments/<app> --limit 1 --jobs 1   # one stage only
+python3 energy/axcept.py drampower -w experiments/<app> --dry-run
 ```
 
-For FFT, replace the paths:
+Results go to `experiments/<app>/{uy_filtered,ramulator_results,drampower_results}`. Use `--logs PATH` if the raw AxRAM logs are not inside the workdir, and `--profile NAME` to select another memory profile defined in `pipeline.toml` (a profile pairs a Ramulator config with a voltage map). The stages can also be called from Python: `load_settings`, `stage_extract`, `stage_ramulator`, `stage_drampower`.
+
+See the [energy pipeline guide](energy/README_pipeline.md) for the expected input layout (one `dataset_error_rate_*` directory per error rate), the output files and a worked example.
+
+### Step by step
+
+**1. Filter AxRAM accesses** (keeps lines starting with `U Y`; empty filtered files must be investigated):
 
 ```bash
-python3 scripts/axram/extract_uy_structure.py \
-  experiments/fft \
-  --output-dir experiments/fft/uy_filtered
+python3 energy/axram/extract_uy_structure.py experiments/<app> \
+  --output-dir experiments/<app>/uy_filtered
 ```
 
-Empty filtered files indicate traces without `U Y` accesses and must be investigated before simulation.
-
-### 2. Run Ramulator
-
-Example for JPEG:
+**2. Run Ramulator** (add `--limit 1 --jobs 1` to test a single input first). A successful run produces `DDR3.stats` and at least one `cmd-trace-*.cmdtrace`:
 
 ```bash
-python3 scripts/ramulator/run_ramulator_batch.py \
-  --input-root experiments/jpeg/uy_filtered \
-  --out-root experiments/jpeg/ramulator_results \
+python3 energy/ramulator/run_ramulator_batch.py \
+  --input-root experiments/<app>/uy_filtered \
+  --out-root experiments/<app>/ramulator_results \
   --ramulator ramulator/ramulator \
   --config configs/ramulator/DDR3_2Gb_x16.cfg \
   --jobs 4
 ```
 
-Test a single input first:
+**3. Run DRAMPower** (add `--dry-run` to validate task discovery first):
 
 ```bash
-python3 scripts/ramulator/run_ramulator_batch.py \
-  --input-root experiments/jpeg/uy_filtered \
-  --out-root experiments/jpeg/ramulator_test \
-  --ramulator ramulator/ramulator \
-  --config configs/ramulator/DDR3_2Gb_x16.cfg \
-  --limit 1 --jobs 1
-```
-
-A successful run should produce `DDR3.stats` and at least one `cmd-trace-*.cmdtrace` file.
-
-### 3. Run DRAMPower
-
-The voltage map associates each scenario name and error rate with a voltage and memory specification file.
-
-```bash
-python3 scripts/drampower/run_drampower_batch.py \
-  --input-root experiments/jpeg/ramulator_results \
-  --output-root experiments/jpeg/drampower_results \
+python3 energy/drampower/run_drampower_batch.py \
+  --input-root experiments/<app>/ramulator_results \
+  --output-root experiments/<app>/drampower_results \
   --voltage-map configs/drampower/voltage_map_vendor_b.csv \
   --drampower DRAMPower-4.1/drampower \
   --jobs 4
 ```
 
-Validate task discovery before running the simulation:
+DRAMPower does not inject faults; it computes energy from the command traces of each scenario. Results are written to `drampower_trace_results.csv` (per trace) and `drampower_scenario_summary.csv` (per scenario), with problems listed in `drampower_run_issues.csv` and `drampower_unmapped_scenarios.csv`.
 
-```bash
-python3 scripts/drampower/run_drampower_batch.py \
-  --input-root experiments/jpeg/ramulator_results \
-  --output-root experiments/jpeg/drampower_results \
-  --voltage-map configs/drampower/voltage_map_vendor_b.csv \
-  --drampower DRAMPower-4.1/drampower \
-  --dry-run
-```
+The Ramulator configuration, DRAMPower memspecs and voltage map must describe the same memory.
 
-DRAMPower does not inject faults. It calculates energy from the command traces generated for each scenario.
+## Troubleshooting
 
-The main output files are:
-
-| File | Contents |
-|---|---|
-| `drampower_trace_results.csv` | energy and power per trace |
-| `drampower_scenario_summary.csv` | statistics aggregated by scenario |
-| `drampower_run_issues.csv` | issues found during execution |
-| `drampower_unmapped_scenarios.csv` | scenarios without a corresponding map entry |
-
-The Ramulator configuration, DRAMPower memory specifications (`memspecs`), and voltage map must represent the same memory.
-
-## Analyses
-
-Quality analyses can be run independently of the energy analysis stage.
-
-### JPEG: Stability
-
-```bash
-python3 'scripts/analysis/crashes&survivors/crash_analyzer_jpeg.py' \
-  /path/to/jpeg/outputs
-```
-
-The script classifies empty outputs, crash dumps, and successful (surviving) outputs.
-
-### JPEG: SSIM
-
-```bash
-python3 scripts/analysis/structuraljpeg/structuraljpeg/compute_jpeg_ssim.py \
-  --perfect-dir /path/to/original_images \
-  --error-dir /path/to/jpeg/outputs
-```
-
-The computation matches images by relative path and considers only decodable files.
-
-### JPEG: Semantic Quality
-
-The scripts are located in:
-
-```text
-scripts/analysis/semanticjpeg/acceptabilityjpeg/
-```
-
-The workflow includes baseline training, separate training for each error rate, validation, and plot generation. Dataset, model, and output paths are defined within the files themselves.
-
-Main commands:
-
-```bash
-python3 scripts/analysis/semanticjpeg/acceptabilityjpeg/codetrain/r50t_tif.py
-python3 scripts/analysis/semanticjpeg/acceptabilityjpeg/codetrain/r50t.py
-```
-
-For validation:
-
-```bash
-cd scripts/analysis/semanticjpeg/acceptabilityjpeg/codeval
-python3 val.py
-python3 geradorgraficonn.py
-```
-
-The current scripts assume datasets are organized by class. Training can use a GPU, but one is not required.
-
-### FFT: Stability
-
-```bash
-python3 'scripts/analysis/crashes&survivors/fft_output_classifier_crash.py' \
-  --base-dir /path/to/fft_experiments \
-  --rates 1e-5 1e-4 1e-3 1e-2 1e-1 \
-  --out /path/to/fft_crash_summary.csv
-```
-
-The CSV aggregates valid results, crash dumps, errors, timeouts, invalid outputs, and missing files.
-
-### FFT: Structural Quality and Semantic Acceptability
-
-The analysis reads the `.bin` files produced by the benchmark directly. There is
-no need to generate `summary.csv` before this stage.
-
-By default, the exact baseline and the runs for each approximate error rate must be under the
-same base directory:
-
-```text
-fft_experiments/
-├── dataset_iowa_music_exact/
-│   └── src/
-│       └── dataset_audio_error_rate_exact/
-│           └── <class>/<audio>.bin
-├── dataset_iowa_music_1e-5/
-│   └── src/
-│       └── dataset_audio_error_rate_1e-5/
-│           └── <class>/<audio>.bin
-└── dataset_iowa_music_1e-4/
-    └── src/
-        └── dataset_audio_error_rate_1e-4/
-            └── <class>/<audio>.bin
-```
-
-The baseline can also use the names `dataset_iowa_music_0` and
-`dataset_audio_error_rate_0`.
-
-Run:
-
-```bash
-python3 'scripts/analysis/acceptability&qualitystructural_fft/analyze_fft_acceptability_two_plots_one_figure.py' \
-  --base-dir /path/to/fft_experiments \
-  --rates 1e-5 1e-4 1e-3 1e-2 1e-1 \
-  --out-dir /path/to/fft_acceptability
-```
-
-If the exact-output directory is located elsewhere, specify it directly:
-
-```bash
-python3 'scripts/analysis/acceptability&qualitystructural_fft/analyze_fft_acceptability_two_plots_one_figure.py' \
-  --base-dir /path/to/fft_experiments \
-  --exact-dir /path/to/dataset_audio_error_rate_exact \
-  --out-dir /path/to/fft_acceptability
-```
-
-The script interprets the first 24 bytes of each file using the
-`<8siiif` format: magic value `AXDFREQ1`, status, number of samples, number of frames,
-and frequency in Hz. Each approximate output is matched with its exact output
-using the full relative path, such as `piano/audio.bin`. Files with the same name
-in different classes are not mixed.
-
-Only pairs in which both outputs are classified as `OK_RESULT` or `RESULT_WITH_CRASH_DUMP` and have
-valid frequencies are included in the MAPE and MIDI calculations. Missing
-files, empty files, error statuses, and invalid outputs are recorded but excluded
-from these calculations. Approximate files without an exact match are also
-reported.
-
-The analysis generates:
-
-```text
-fft_metrics_by_rate.csv
-fft_all_comparisons_vs_exact.csv
-fft_unmatched_files.csv
-fft_two_plots_one_figure_publication.pdf
-fft_two_plots_one_figure_publication.png
-```
-
-The CSV files are analysis results, not inputs. The figures require `numpy` and
-`matplotlib`.
-
-## Main Scripts
-
-| Script | Function |
-|---|---|
-| `scripts/benchmarks/jpeg/axcept_batch_jpeg.py` | runs the JPEG workload |
-| `scripts/benchmarks/fft/axcept_batch_fft_final_parallel.py` | runs the FFT workload in parallel |
-| `scripts/utils/convert_iowa_aif_to_bin.py` | converts AIFF files to raw audio |
-| `scripts/axram/extract_uy_structure.py` | filters `U Y` accesses |
-| `scripts/ramulator/run_ramulator_batch.py` | runs traces through Ramulator |
-| `scripts/drampower/run_drampower_batch.py` | computes and aggregates energy consumption |
-| `scripts/analysis/structuraljpeg/structuraljpeg/compute_jpeg_ssim.py` | computes SSIM |
-| `scripts/analysis/crashes&survivors/crash_analyzer_jpeg.py` | analyzes JPEG stability |
-| `scripts/analysis/crashes&survivors/fft_output_classifier_crash.py` | analyzes FFT stability |
-| `scripts/analysis/acceptability&qualitystructural_fft/analyze_fft_acceptability_two_plots_one_figure.py` | analyzes FFT acceptability and structural quality and generates CSV files and plots |
-| `scripts/analysis/semanticjpeg/acceptabilityjpeg/codetrain/r50t.py` | trains and evaluates a ResNet-50 using approximate JPEG outputs |
-| `scripts/analysis/semanticjpeg/acceptabilityjpeg/codetrain/r50t_tif.py` | trains and evaluates the reference ResNet-50 using TIFF images |
-| `scripts/analysis/semanticjpeg/acceptabilityjpeg/codeval/config.py` | configures models, datasets, and outputs for JPEG semantic validation |
-| `scripts/analysis/semanticjpeg/acceptabilityjpeg/codeval/val.py` | validates the ResNet-50 models on the JPEG datasets and consolidates the results |
-| `scripts/analysis/semanticjpeg/acceptabilityjpeg/codeval/geradorgraficonn.py` | generates plots for JPEG semantic validation |
-
-For scripts that provide a command-line interface, view the available options with:
-
-```bash
-python3 path/to/script.py --help
-```
-
-## Experimental Guidelines
-
-- Use the same dataset across all error rates.
-- Record the code version, parameters, and random seeds when applicable.
-- Do not mix outputs from different error rates.
-- Preserve the raw AxRAM traces.
-- Validate a sample before starting large batches.
-- Compare all results against the exact baseline.
-- Record timeouts and crashes; do not silently discard failures.
-- Keep the Ramulator configuration, DRAMPower memspecs, and voltage map consistent.
-- Increase parallelism only after validating a small run.
-
-## Common Issues
-
-### `axpike` or `pk` Not Found
-
-Check the installation or the binary paths in the environment used to run the benchmark.
-
-### Dataset or Application Not Found
-
-Check `DATASET_DIR`, `APP_BIN`, and the directory from which the runner was started. Relative paths are resolved from that directory.
-
-### Output Contains Proxy Kernel Text
-
-The application's stdout contains binary data. Check the Proxy Kernel configuration and the handling of the 64-byte padding used by the runners.
-
-### No AxRAM Log Was Generated
-
-Confirm that:
-
-- AxRAM is enabled with `--adele-activate=0:AXRAM`;
-- the error rate is set in `mem_read_prob`;
-- filenames follow the `AXRAM_log_pid*_hart*.log` format;
-- the execution directory is writable.
-
-### The Extractor Does Not Find Any Accesses
-
-Check whether the traces contain lines beginning with `U Y` and whether the specified directory contains the raw logs.
-
-### Ramulator Does Not Generate Command Traces
-
-Check `stdout.txt`, `stderr.txt`, `DDR3.stats`, and the configuration used. Command trace recording must be enabled.
-
-### DRAMPower Does Not Find Any Tasks
-
-Check:
-
-- `cmd-trace-*.cmdtrace` files;
-- scenario names;
-- entries enabled in the voltage map;
-- whether the specified memory specification files exist;
-- the path to the `DRAMPower-4.1/drampower` executable.
-
-## Scope
-
-AxCept-Bench is a foundation for experiments, not a package of ready-made results. Each study should document its experimental decisions, datasets, hardware configurations, metrics, and acceptability criteria.
+- **Output contains Proxy Kernel text:** the `bbl loader` message was not silenced. See the [application guide](applications/usage.md).
+- **No AxRAM log generated:** confirm AxRAM is enabled with `--adele-activate=0:AXRAM`, that `mem_read_prob` is set, and that the execution directory is writable.
+- **DRAMPower finds no tasks:** check that `cmd-trace-*.cmdtrace` files exist, that scenario names match the voltage map, and that the memspec files exist.
+- **Unsure about a script's options:** run `python3 path/to/script.py --help`.

@@ -49,8 +49,21 @@ AxCept-Bench experimental infrastructure.
    Description:
    A DRAM power and energy estimation tool used to estimate energy from
    Ramulator command traces.
+   
+---
+
+5. OpenALPR
+   Copyright (c) 2015 OpenALPR Technology, Inc.
+   Source: https://github.com/openalpr/openalpr
+   License: GNU Affero General Public License v3.0 (AGPL-3.0)
+
+   Description:
+   An open-source Automatic License Plate Recognition (ALPR) library, used
+   as the plate-detection/OCR engine for the AxCept-Bench plate-recognition
+   (semantic acceptability) workload.
 
 ---
+
 
 The third-party components listed above are not authored by the
 AxCept-Bench author. Their original licenses, notices, and documentation
