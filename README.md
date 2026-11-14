@@ -1,21 +1,10 @@
 # AxCept-Bench
 
-**AxCept-Bench** is an experimental infrastructure for studying the trade-off between output quality, both structural and semantic, and energy savings in approximate computing.
+**AxCept-Bench** is an experimental infrastructure for studying the trade-off between output acceptability and energy savings when an application runs on approximate DRAM.
 
-RISC-V applications run on **AxPike**, read faults are injected by the **AxRAM** model, output degradation is evaluated, and memory accesses are converted into energy estimates using **Ramulator** and **DRAMPower**.
+Each RISC-V application runs on the **AxPike** simulator, where the **AxRAM** model injects read errors at a given rate (`mem_read_prob`). The approximate outputs are then judged for acceptability, and the memory accesses recorded by AxRAM are converted into DRAM energy with **Ramulator** and **DRAMPower**, using a lower supply voltage for each error rate.
 
 This repository provides the benchmark components and supporting scripts. It does not provide a turnkey experiment: datasets are not included, and some scripts use hard-coded constants that must be configured before execution.
-
-## Applications
-
-| Application | Location | Batch runner | Quality evaluation |
-|---|---|---|---|
-| JPEG | `applications/jpeg` | `applications/jpeg/axcept_batch_jpeg.py` | crash analysis, SSIM, semantic quality, plate recognition |
-| FFT (dominant frequency) | `applications/fft` | `applications/fft/axcept_batch_fft.py` | crash analysis, frequency error, MIDI note matching |
-| Sobel (edge detection) | `applications/sobel` | `applications/sobel/axcept_batch_sobel.py` | plate recognition (OpenALPR) |
-| MLP (GENANN neural network) | `applications/mlp` | `run_validate_axram.py`, `run_train_axram.py` | classification accuracy |
-
-To build and run JPEG and FFT on AxPike, see the [application build and execution guide](applications/usage.md). Sobel and MLP have their own guides: [applications/sobel/README.md](applications/sobel/README.md) and [applications/mlp/README.md](applications/mlp/README.md).
 
 ## Workflow
 
@@ -29,52 +18,32 @@ RISC-V Application
 AxPike + AxRAM
    |---------------------------|
    v                           v
-Approximate Output        Memory Logs
+Approximate Output        AxRAM Logs
    |                           |
    v                           v
-Quality Analysis          U Y Access Filter
-                               |
-                               v
-                           Ramulator
-                               |
-                               v
-                           DRAMPower
+Acceptability Analysis    Energy Pipeline (energy/axcept.py)
+                          U Y filter -> Ramulator -> DRAMPower
                                |
                                v
                         Energy and Power
 ```
 
-Each application is run once per read error rate (`mem_read_prob`). A common set is `0` (exact baseline), `1e-5`, `1e-4`, `1e-3`, `1e-2` and `1e-1`. The baseline can keep AxRAM enabled with probability `0`, so its traces are comparable to the approximate ones.
+Each application is run once per read error rate. A common set is `0` (exact baseline), `1e-5`, `1e-4`, `1e-3`, `1e-2` and `1e-1`. The baseline keeps AxRAM enabled with probability `0`, so its traces are comparable to the approximate ones.
 
 ## Repository Layout
 
 ```text
-applications/           workloads (JPEG, FFT, Sobel, MLP/GENANN): batch runner, sources and analyses of each
-axpike-isa-sim/         AxPike simulator
-axpike-pk/              RISC-V Proxy Kernel
-ramulator/              memory simulator
-DRAMPower-4.1/          energy model used by the current workflow
-drampower/              newer DRAMPower version (different CLI, not used by the scripts)
-configs/                Ramulator configuration, DRAMPower memspecs / voltage map, pipeline.toml
-energy/axcept.py        energy pipeline entry point (AxRAM logs -> Ramulator -> DRAMPower)
-energy/axram/           AxRAM log processing
-energy/ramulator/       Ramulator batch execution
-energy/drampower/       DRAMPower batch execution
-energy/analysis/        energy analyses (bootstrap confidence intervals)
+applications/       workloads (JPEG, FFT, Sobel, MLP): sources, batch runner and acceptability analyses of each
+configs/            Ramulator config, DRAMPower memspecs and voltage map, pipeline.toml
+energy/             energy pipeline (axcept.py) and energy analyses
+axpike-isa-sim/     AxPike simulator
+axpike-pk/          RISC-V Proxy Kernel
+ramulator/          memory simulator
+DRAMPower-4.1/      energy model used by the pipeline
+drampower/          newer DRAMPower version (different CLI, not used by the scripts)
 ```
 
-Each application keeps its own analyses next to its runner. Not every application has every folder, and MLP has its own layout (see [its README](applications/mlp/README.md)):
-
-```text
-applications/<app>/
-├── README.md                  how to build and run the application
-├── axcept_batch_<app>.py      batch runner (one run per error rate)
-├── src/                       application sources
-├── utils/                     dataset converters
-├── output_analyzer/           crash / timeout / valid output classification
-├── quality_metric/            quality metrics (e.g. SSIM)
-└── acceptability_semantic/    semantic acceptability (e.g. classifier, plate recognition)
-```
+How to build and run each application: [JPEG and FFT](applications/usage.md), [Sobel](applications/sobel/README.md), [MLP](applications/mlp/README.md).
 
 ## Setting Up the Environment
 
@@ -98,7 +67,7 @@ sudo apt-get install build-essential autoconf automake libtool pkg-config \
 
 ### Python libraries
 
-Only needed by the quality analyses. The AxRAM, Ramulator and DRAMPower scripts use the standard library.
+Only needed by the acceptability analyses. The energy pipeline uses only the standard library.
 
 ```bash
 python3 -m venv .venv
@@ -155,61 +124,18 @@ make -C DRAMPower-4.1 -j4 drampower
 
 ## Energy Pipeline
 
-This stage is the same for every application: it only reads the `AXRAM_log_pid*_hart*.log` traces written by AxPike. Put the traces of each error rate in its own directory, named after the scenarios of the voltage map (`dataset_error_rate_0`, `dataset_error_rate_1e-5`, ...), inside one experiment directory. The [application guide](applications/usage.md#5-organizing-the-runs-for-the-energy-pipeline) shows how to do this with the batch runners.
-
-### Single command
-
-`energy/axcept.py` runs the three steps below with the tools, Ramulator config and voltage map taken from [`configs/pipeline.toml`](configs/pipeline.toml), so only the experiment directory has to be given:
+The pipeline is the same for every application: it only reads the `AXRAM_log_pid*_hart*.log` files written by AxPike. Put the logs of each error rate in its own directory, named after the scenarios of the voltage map (`dataset_error_rate_0`, `dataset_error_rate_1e-5`, ...), inside one experiment directory. The [application guide](applications/usage.md#5-organizing-the-runs-for-the-energy-pipeline) shows how to do this with the batch runners.
 
 ```bash
-python3 energy/axcept.py config                          # show config, validate memspecs, list scenarios
-python3 energy/axcept.py run -w experiments/<app>        # extract + ramulator + drampower
-python3 energy/axcept.py ramulator -w experiments/<app> --limit 1 --jobs 1   # one stage only
-python3 energy/axcept.py drampower -w experiments/<app> --dry-run
+python3 energy/axcept.py config                     # check tools, memspecs and scenarios
+python3 energy/axcept.py run -w experiments/<app>   # extract + ramulator + drampower
 ```
 
-Results go to `experiments/<app>/{uy_filtered,ramulator_results,drampower_results}`. Use `--logs PATH` if the raw AxRAM logs are not inside the workdir, and `--profile NAME` to select another memory profile defined in `pipeline.toml` (a profile pairs a Ramulator config with a voltage map). The stages can also be called from Python: `load_settings`, `stage_extract`, `stage_ramulator`, `stage_drampower`.
-
-See the [energy pipeline guide](energy/README_pipeline.md) for the expected input layout (one `dataset_error_rate_*` directory per error rate), the output files and a worked example.
-
-### Step by step
-
-**1. Filter AxRAM accesses** (keeps lines starting with `U Y`; empty filtered files must be investigated):
-
-```bash
-python3 energy/axram/extract_uy_structure.py experiments/<app> \
-  --output-dir experiments/<app>/uy_filtered
-```
-
-**2. Run Ramulator** (add `--limit 1 --jobs 1` to test a single input first). A successful run produces `DDR3.stats` and at least one `cmd-trace-*.cmdtrace`:
-
-```bash
-python3 energy/ramulator/run_ramulator_batch.py \
-  --input-root experiments/<app>/uy_filtered \
-  --out-root experiments/<app>/ramulator_results \
-  --ramulator ramulator/ramulator \
-  --config configs/ramulator/DDR3_2Gb_x16.cfg \
-  --jobs 4
-```
-
-**3. Run DRAMPower** (add `--dry-run` to validate task discovery first):
-
-```bash
-python3 energy/drampower/run_drampower_batch.py \
-  --input-root experiments/<app>/ramulator_results \
-  --output-root experiments/<app>/drampower_results \
-  --voltage-map configs/drampower/voltage_map_vendor_b.csv \
-  --drampower DRAMPower-4.1/drampower \
-  --jobs 4
-```
-
-DRAMPower does not inject faults; it computes energy from the command traces of each scenario. Results are written to `drampower_trace_results.csv` (per trace) and `drampower_scenario_summary.csv` (per scenario), with problems listed in `drampower_run_issues.csv` and `drampower_unmapped_scenarios.csv`.
-
-The Ramulator configuration, DRAMPower memspecs and voltage map must describe the same memory.
+Results are written inside the experiment directory; the main one is `drampower_results/drampower_scenario_summary.csv` (one row per error rate). The [energy pipeline guide](energy/README_pipeline.md) describes the input layout, every option, each stage on its own and the output files.
 
 ## Troubleshooting
 
 - **Output contains Proxy Kernel text:** the `bbl loader` message was not silenced. See the [application guide](applications/usage.md).
 - **No AxRAM log generated:** confirm AxRAM is enabled with `--adele-activate=0:AXRAM`, that `mem_read_prob` is set, and that the execution directory is writable.
-- **DRAMPower finds no tasks:** check that `cmd-trace-*.cmdtrace` files exist, that scenario names match the voltage map, and that the memspec files exist.
+- **An error rate is missing from the energy results:** check that its directory name matches the voltage map and that the logs are not inside a `src/` directory.
 - **Unsure about a script's options:** run `python3 path/to/script.py --help`.
